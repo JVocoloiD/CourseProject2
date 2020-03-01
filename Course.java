@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Course {
 
     private String courseName;
@@ -27,8 +29,11 @@ public class Course {
 //setters not included because arrays are fixed in size and course name shouldn't be changed by user
 
     public String toString(){
-        return "Course name: " + courseName + "\nNumber enrolled: " + checkEnrolled() + "\nMax class size: " + roster.length +
-                "\nTotal waitlisted: " + checkWaitlisted() + "\nMax waitlist: " + waitlist.length;
+        return "Course name: " + courseName +
+                "\nNumber enrolled: " + checkEnrolled() + "\n" + Arrays.toString(roster) +
+                "\nMax class size: " + roster.length +
+                "\nNumber waitlisted: " + checkWaitlisted() + "\n" + Arrays.toString(waitlist) +
+                "\nMax waitlist: " + waitlist.length;
     }
 
     public int checkEnrolled(){
@@ -70,8 +75,8 @@ public class Course {
             }
 
             if (waitlist.length > waitlisted){ //if not enrolled and roster is full
-                for (Student value : waitlist) {
-                    if (value != null && value.equals(student)) { //is the student already on the waitlist
+                for (Student item : waitlist) {
+                    if (item != null && item.equals(student)) { //is the student already on the waitlist
                         return false;
                     }
                 }
@@ -88,6 +93,68 @@ public class Course {
         }
 
         return false;
+
+    }
+
+
+    public boolean checkInClass(Student[] array, Student student){
+        for (Student item : array) {
+            if (item == student) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public int whereInClass(Student[] array, Student student){
+        for (int i = 0; i < array.length; i++){
+            if (array[i] == student){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean dropStudent(Student student){
+
+        if (checkInClass(waitlist, student)) {
+            Student[] newWaitlist = new Student[waitlist.length];
+            int index = whereInClass(waitlist, student);
+
+            for (int i = 0, k = 0; i < waitlist.length; i++) {
+                if (i == index) {
+                    continue;
+                }
+                newWaitlist[k++] = waitlist[i];
+            }
+
+            waitlist = newWaitlist;
+            return true;
+        }
+        else if (checkInClass(roster, student)) {
+            Student[] newWaitlist = new Student[waitlist.length];
+            Student[] newRoster = new Student[roster.length];
+            int index = whereInClass(roster, student);
+
+            for (int i = 0, k = 0; i < roster.length; i++) {
+                if (i == index) {
+                    continue;
+                }
+                newRoster[k++] = roster[i];
+            }
+
+            newRoster[newRoster.length - 1] = waitlist[0];
+            for (int i = 1, k = 0; i < waitlist.length; i++) {
+                newWaitlist[k++] = waitlist[i];
+            }
+
+            roster = newRoster;
+            waitlist = newWaitlist;
+            return true;
+        }
+        else {
+            return false;
+        }
 
     }
 
